@@ -1,0 +1,18 @@
+{
+  "questions": [
+    {
+      "id": "Q1",
+      "question": "What was your actual decision scope?",
+      "reason": "Distinguishes direct ownership from participation.",
+      "requirement_ids": ["R1"]
+    }
+  ],
+  "responses": [
+    {
+      "question_id": "Q1",
+      "status": "answered",
+      "answer": "I designed and implemented the API boundary.",
+      "received_at": "2026-01-01T09:00:00+09:00"
+    }
+  ]
+}

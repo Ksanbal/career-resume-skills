@@ -1,0 +1,7 @@
+{
+  "approved": true,
+  "reviewed_path": "content_review.md",
+  "reviewed_sha256": "replace-with-current-sha256",
+  "approval_quote": "Generate the resume as reviewed.",
+  "approved_at": "2026-01-01T09:05:00+09:00"
+}
