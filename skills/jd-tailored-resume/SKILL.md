@@ -53,6 +53,11 @@ Do not use for broad job discovery, application submission, recruiter contact, p
   validation_report.md
 ```
 
+`content_approval.json` binds the user's approval to `content_review.md`. After
+generation, add `resume_data_sha256` and a `generated_artifact_hashes` mapping for
+all four generated files. These fields are integrity records, not a substitute
+for the user's approval quote.
+
 ## Procedure
 
 ### 1. Verify and freeze the JD
@@ -132,7 +137,17 @@ Completion criterion: validation passes and the approval hash matches the curren
 
 Build structured data and trace, then render HTML/PDF using the baseline's visual system. Do not silently add meaning, metrics, skills, experience, or ownership beyond the approved content. Keep readable A4 typography; increase page count instead of shrinking or deleting content.
 
-Completion criterion: searchable text, no blank pages, clipping, overlap, missing glyphs, orphan headings, or unapproved content changes.
+Record the SHA-256 of `resume_data.json`, `claim_trace.json`, `resume.html`, and
+`resume.pdf` under `generated_artifact_hashes` in `content_approval.json`. Set
+`resume_data_sha256` to the same value as the `resume_data.json` entry. Then run:
+
+```bash
+python scripts/validate_workflow.py --run-dir <run> --stage final
+```
+
+Completion criterion: the final gate passes; every generated file is present and
+matches its recorded hash; the PDF has searchable text and no blank pages,
+clipping, overlap, missing glyphs, orphan headings, or unapproved content changes.
 
 ### 9. Run an independent hiring review
 
@@ -154,12 +169,109 @@ Deliver PDF, HTML, validation report, and a concise message containing:
 
 Do not submit an application, contact anyone, publish a profile, or write to external systems without separate explicit approval.
 
+## Synthetic Evaluation
+
+`fixtures/evaluation/` is synthetic and non-production. The **candidate fixture**
+is fictional; the supplied JD is a real public source and must not be described as
+fictional. Never remove the fixture's visible evaluation labeling or use it for a
+real application.
+
+### Synthetic evaluation protocol (evaluation mode only)
+
+Use this contextless protocol for the clean-agent run; it is an evaluation-only
+exception to the production questions and approval flow:
+
+1. Verify the public JD Aside-first. If and when `aside` exists, inspect its current
+   one-shot interface with `aside repl --help`, then use an Aside one-shot snapshot
+   before trying any other network route:
+
+   ```bash
+   aside repl "const p = await openTab('<public-jd-url>'); const s = await snapshot(p); console.log(s.tree);"
+   ```
+
+   Do not stop at a redirect, aggregator, or syndicated copy. If the page names or
+   links an original careers source, follow it and record that original source URL,
+   status, and checked time in `run/jd_snapshot.md`. Only after this Aside attempt
+   may you try `curl` or web search. A snippet alone is not verification; fail closed
+   and do not render if the JD and its source remain blocked or unverifiable.
+2. The exact locked
+   `.agents/skills/jd-tailored-resume/fixtures/evaluation/fictional_korean_resume.json`
+   is pre-authorized evaluation-only input. Do not ask a real user question. Do not
+   request production content approval. Do not alter or relabel the fixture, and do
+   not convert its claims into candidate-specific content.
+3. The agent must create only `run/jd_snapshot.md` and `run/resume_data.json`.
+   At handoff, these must be regular, non-symlink files, and no other file or
+   symlink may exist anywhere in the scratch workspace outside `.agents/` and
+   `.git/`. Put any network, retrieval, or browser temporary files under
+   `$TMPDIR`, never in the scratch root or `run/`, and delete them before
+   handoff so they do not survive the agent run. Copy the locked fixture
+   byte-for-byte; do not parse and rewrite it:
+
+   ```bash
+   mkdir -p run
+   cp .agents/skills/jd-tailored-resume/fixtures/evaluation/fictional_korean_resume.json run/resume_data.json
+   ```
+
+   Do not create or modify `resume.html`, `resume.pdf`, `render_manifest.json`,
+   `layout_audit.json`, or `output_render/`. After the agent exits, the trusted
+   evaluation controller first verifies the semantic-only handoff boundary, then
+   verifies the JD snapshot, schema, exact locked fixture hash, and skill
+   immutability. Any extra file or symlink fails the run before compilation. The
+   controller removes presentation artifacts defensively, then runs the fixed
+   scoped compiler and auditor outside the agent sandbox only after every
+   prerequisite passes.
+
+Production mode remains governed by the approval requirements above; this protocol
+does not waive or weaken them for any real candidate resume.
+
+Run the clean-agent grader with:
+
+```bash
+python scripts/eval_runner.py \
+  --jd-url https://jobs.example.com/roles/platform-lead \
+  --output-dir evaluation-output/run-001
+```
+
+The runner uses a real temporary `git init`, installs only this skill at
+`.agents/skills/jd-tailored-resume`, and invokes:
+
+```text
+codex exec --json --ephemeral --ignore-user-config --ignore-rules --config sandbox_workspace_write.network_access=true --sandbox workspace-write --skip-git-repo-check <prompt>
+```
+
+Its primary prompt contains only the skill invocation, public JD URL, semantic-only
+synthetic mode declaration, and `run/` output path. The agent supplies only a
+nonempty `run/jd_snapshot.md` and byte-identical locked `resume_data.json`. The
+controller then materializes and grades all six artifacts. PASS requires a fully
+valid JSONL trace with an agent message; exact fixture provenance and schema;
+`EVALUATION_ONLY` render status; a fresh independent `PASS` audit; matching artifact
+hashes; and no source or installed skill mutation. Controller command evidence and
+per-check grades are copied to `evaluation_manifest.json` and `scratch-artifacts/`.
+
+Corpus mode is a policy-control evaluation, separate from the full clean-agent E2E.
+It installs this skill without `eval_prompts.jsonl`; prompts include case data but no
+expected label, disable network access, require no files or external actions, and
+accept only JSON with `case_id` and `decision`. Execute all 12 explicit, implicit,
+context, and negative controls deterministically:
+
+```bash
+python scripts/eval_runner.py \
+  --corpus fixtures/evaluation/eval_prompts.jsonl \
+  --output-dir evaluation-output/corpus-001
+```
+
+Live Codex corpus evaluation is opt-in. CI executes every control with a
+label-independent deterministic fake and never makes a live model or network call.
+Use the clean-agent E2E above to evaluate rendering and artifact provenance.
+
 ## Pitfalls
 
 - Do not ask generic questions already answered by the baseline or career source.
 - Do not draft first and ask questions afterward.
 - Do not interpret “please review” as approval to generate.
 - Do not reuse an approval after changing `content_review.md`.
+- Do not deliver generated files with absent, stale, or mismatched artifact hashes.
+- Do not treat synthetic evaluation output as a production resume.
 - Do not optimize by deleting history, repeating JD keywords, or inventing metrics.
 - Do not expose internal evidence IDs, private notes, tokens, source IDs, or workflow labels in public resume files.
 - Do not silently fall back from a user-required browser or data route.
@@ -176,6 +288,7 @@ Do not submit an application, contact anyone, publish a profile, or write to ext
 - [ ] Exact proposed content shown before generation
 - [ ] Current content hash explicitly approved
 - [ ] No structured resume, HTML, or PDF created before approval
+- [ ] Final generated files exist and match every recorded SHA-256
 - [ ] Any post-review semantic change re-approved
 - [ ] Baseline comparison and uncertainty included in delivery message
 - [ ] No invented facts or unapproved external action

@@ -1,0 +1,9 @@
+{
+  "manifest_version": "1.0.0",
+  "fixtures": {
+    "fixtures/evaluation/fictional_korean_resume.json": "4323ba6879284759517fd42a71a724b6471ed026f082aa9b4d917e513460ffe8"
+  },
+  "relabel_guard_sha256": {
+    "fixtures/evaluation/fictional_korean_resume.json": "88afb93dd143841d1f26fb859b5caae874a0e5a14bc4bc6ea4d3bd289cf6a534"
+  }
+}

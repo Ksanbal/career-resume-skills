@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/deterministic-resume-content-v1.json",
+  "title": "Deterministic Resume Content",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["meta", "header", "profile", "skills", "career", "side_projects", "education", "certifications", "activities"],
+  "properties": {
+    "meta": {"$ref": "#/$defs/meta"},
+    "header": {"$ref": "#/$defs/header"},
+    "profile": {"$ref": "#/$defs/profile"},
+    "skills": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/skillGroup"}},
+    "career": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/career"}},
+    "side_projects": {"type": "array", "items": {"$ref": "#/$defs/project"}},
+    "education": {"type": "array", "items": {"$ref": "#/$defs/support"}},
+    "certifications": {"type": "array", "items": {"$ref": "#/$defs/support"}},
+    "activities": {"type": "array", "items": {"$ref": "#/$defs/support"}}
+  },
+  "$defs": {
+    "safeSemanticText": {
+      "type": "string",
+      "maxLength": 20000,
+      "allOf": [
+        {"not": {"pattern": "<\\s*/?\\s*[A-Za-z][^>]*>"}},
+        {"not": {"pattern": "[Ss][Tt][Yy][Ll][Ee]\\s*="}},
+        {"not": {"pattern": "[Cc][Ll][Aa][Ss][Ss]\\s*="}},
+        {"not": {"pattern": "@[Ii][Mm][Pp][Oo][Rr][Tt]\\b"}},
+        {"not": {"pattern": "[Uu][Rr][Ll]\\s*\\(\\s*[\"']?\\s*(?:[Hh][Tt][Tt][Pp][Ss]?:)?//"}},
+        {"not": {"pattern": "[Jj][Aa][Vv][Aa][Ss][Cc][Rr][Ii][Pp][Tt]\\s*:"}},
+        {"not": {"pattern": "[Dd][Aa][Tt][Aa]\\s*:\\s*(?:[Tt][Ee][Xx][Tt]/(?:[Hh][Tt][Mm][Ll]|[Jj][Aa][Vv][Aa][Ss][Cc][Rr][Ii][Pp][Tt])|[Aa][Pp][Pp][Ll][Ii][Cc][Aa][Tt][Ii][Oo][Nn]/(?:[Jj][Aa][Vv][Aa][Ss][Cc][Rr][Ii][Pp][Tt]|[Xx][Hh][Tt][Mm][Ll]\\+[Xx][Mm][Ll])|[Ii][Mm][Aa][Gg][Ee]/[Ss][Vv][Gg]\\+[Xx][Mm][Ll])"}}
+      ]
+    },
+    "nonEmpty": {"allOf": [{"$ref": "#/$defs/safeSemanticText"}, {"minLength": 1}]},
+    "meta": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "locale", "document_purpose"],
+      "properties": {
+        "schema_version": {"const": "1.0.0"},
+        "locale": {"enum": ["ko-KR", "en-US"]},
+        "document_purpose": {"enum": ["application", "evaluation_fixture"]}
+      }
+    },
+    "header": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "title", "email", "phone", "links"],
+      "properties": {
+        "name": {"$ref": "#/$defs/nonEmpty"}, "title": {"$ref": "#/$defs/nonEmpty"},
+        "email": {"allOf": [{"$ref": "#/$defs/safeSemanticText"}, {"maxLength": 320}]},
+        "phone": {"allOf": [{"$ref": "#/$defs/safeSemanticText"}, {"maxLength": 100}]},
+        "links": {"type": "array", "maxItems": 8, "items": {"type": "string", "pattern": "^https?://", "maxLength": 2048}}
+      }
+    },
+    "profile": {
+      "type": "object", "additionalProperties": false, "required": ["paragraphs"],
+      "properties": {"paragraphs": {"type": "array", "minItems": 1, "maxItems": 8, "items": {"$ref": "#/$defs/nonEmpty"}}}
+    },
+    "skillGroup": {
+      "type": "object", "additionalProperties": false, "required": ["category", "items"],
+      "properties": {"category": {"$ref": "#/$defs/nonEmpty"}, "items": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"$ref": "#/$defs/nonEmpty"}}}
+    },
+    "bullet": {
+      "type": "object", "additionalProperties": false, "required": ["text"],
+      "properties": {
+        "title": {"allOf": [{"$ref": "#/$defs/safeSemanticText"}, {"maxLength": 500}]},
+        "text": {"$ref": "#/$defs/nonEmpty"}
+      }
+    },
+    "project": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "organization", "role", "period", "summary", "bullets"],
+      "properties": {
+        "name": {"$ref": "#/$defs/nonEmpty"},
+        "organization": {"allOf": [{"$ref": "#/$defs/safeSemanticText"}, {"maxLength": 2000}]},
+        "role": {"allOf": [{"$ref": "#/$defs/safeSemanticText"}, {"maxLength": 2000}]},
+        "period": {"$ref": "#/$defs/nonEmpty"},
+        "summary": {"$ref": "#/$defs/nonEmpty"},
+        "bullets": {"type": "array", "maxItems": 100, "items": {"$ref": "#/$defs/bullet"}}
+      }
+    },
+    "career": {
+      "type": "object", "additionalProperties": false,
+      "required": ["company", "employment", "period", "summary", "role_bullets", "projects"],
+      "properties": {
+        "company": {"$ref": "#/$defs/nonEmpty"}, "employment": {"$ref": "#/$defs/nonEmpty"},
+        "period": {"$ref": "#/$defs/nonEmpty"}, "summary": {"$ref": "#/$defs/nonEmpty"},
+        "role_bullets": {"type": "array", "maxItems": 100, "items": {"$ref": "#/$defs/bullet"}},
+        "projects": {"type": "array", "items": {"$ref": "#/$defs/project"}}
+      }
+    },
+    "support": {
+      "type": "object", "additionalProperties": false, "required": ["name", "organization", "period", "detail"],
+      "properties": {
+        "name": {"$ref": "#/$defs/nonEmpty"},
+        "organization": {"allOf": [{"$ref": "#/$defs/safeSemanticText"}, {"maxLength": 2000}]},
+        "period": {"$ref": "#/$defs/nonEmpty"},
+        "detail": {"$ref": "#/$defs/safeSemanticText"}
+      }
+    }
+  }
+}

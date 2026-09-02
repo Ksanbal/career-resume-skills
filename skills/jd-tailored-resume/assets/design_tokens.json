@@ -1,0 +1,9 @@
+{
+  "design_version": "v9-public-1",
+  "page": {"size": "A4", "margin_top_mm": 17, "margin_right_mm": 18, "margin_bottom_mm": 16, "margin_left_mm": 18},
+  "typography": {"body_pt": 10.5, "body_line_height": 1.48, "minimum_body_pt": 10.5, "minimum_body_line_height": 1.48},
+  "layout": {"left_column_mm": 39.5, "column_gap_mm": 7.05, "alignment_tolerance_px": 0.75},
+  "colors": {"text": "#18191e", "muted": "#61666d", "accent": "#075d63", "rule": "#e2e5e9"},
+  "required_section_order": ["PROFILE", "CORE STACK", "CAREER", "SIDE PROJECT", "EDUCATION", "CERTIFICATIONS", "AWARDS & ACTIVITIES"],
+  "allowed_classes": ["resume-doc", "evaluation-banner", "hero", "target", "contact", "section-grid", "section-label", "section-body", "core-stack", "stack-grid", "stack-row", "career-entry", "company-side", "employment", "section-kicker", "role-main", "role-card", "career-projects", "project-card", "item-head", "meta", "project-summary", "side-projects", "support-item"]
+}

@@ -1,0 +1,12 @@
+{
+  "chromium_revision": "1187",
+  "fixture_sha256": "4323ba6879284759517fd42a71a724b6471ed026f082aa9b4d917e513460ffe8",
+  "geometry_sha256": "892554f9f8a361a2ad8a24c342b345e2bbcf0c401c2d023b22f922be098f3127",
+  "golden_version": "1.0.0",
+  "max_hamming_distance": 4,
+  "page_count": 1,
+  "page_perceptual_dhash": [
+    "8aa2a8a060e0e260"
+  ],
+  "rationale": "Geometry is exact under the locked browser/font; 64-bit dHash allows minor raster portability variance."
+}

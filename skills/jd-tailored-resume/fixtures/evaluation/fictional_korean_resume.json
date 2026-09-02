@@ -1,0 +1,53 @@
+{
+  "meta": {"schema_version": "1.0.0", "locale": "ko-KR", "document_purpose": "evaluation_fixture"},
+  "header": {
+    "name": "가상후보 김테스트",
+    "title": "Backend Engineer",
+    "email": "fictional@example.invalid",
+    "phone": "000-0000-0000",
+    "links": ["https://example.invalid/fictional-portfolio"]
+  },
+  "profile": {"paragraphs": ["이 문서는 렌더러 평가만을 위한 완전한 허구의 이력서입니다. 실제 인물, 회사, 성과와 관련이 없으며 채용 지원에 사용할 수 없습니다.", "분산 시스템의 안정성과 개발자 경험을 함께 개선하는 가상의 백엔드 엔지니어 설정입니다."]},
+  "skills": [
+    {"category": "Backend", "items": ["TypeScript", "Python", "PostgreSQL", "Redis"]},
+    {"category": "Platform", "items": ["Containers", "Observability", "CI/CD"]}
+  ],
+  "career": [
+    {
+      "company": "가상주식회사",
+      "employment": "정규직 · Backend Engineer",
+      "period": "2022.01 — 현재",
+      "summary": "허구의 협업 도구 API를 설계하고 운영 안정성 개선을 담당했다는 평가용 서술입니다.",
+      "role_bullets": [
+        {"title": "설계", "text": "가상의 모듈 경계를 정의하고 변경 영향도를 검토했습니다."},
+        {"title": "운영", "text": "허구의 장애 대응 절차와 관측 지표를 정리했습니다."}
+      ],
+      "projects": [
+        {
+          "name": "가상 협업 API",
+          "organization": "가상주식회사",
+          "role": "Backend Engineer",
+          "period": "2023.03 — 2024.12",
+          "summary": "평가를 위해 만든 허구의 멀티테넌트 협업 서비스 API입니다.",
+          "bullets": [
+            {"title": "일관성", "text": "가상의 이벤트 처리 흐름에서 재시도와 멱등성 경계를 설계했습니다."},
+            {"title": "검증", "text": "합성 부하와 실패 주입으로 허구의 복구 절차를 점검했습니다."}
+          ]
+        }
+      ]
+    }
+  ],
+  "side_projects": [
+    {
+      "name": "가상 한글 검색 실험",
+      "organization": "개인 평가 fixture",
+      "role": "개발",
+      "period": "2021.01 — 2021.06",
+      "summary": "한국어 줄바꿈과 검색 가능 PDF를 검증하는 합성 프로젝트입니다.",
+      "bullets": [{"text": "실제 사용자나 운영 데이터 없이 생성한 텍스트만 사용했습니다."}]
+    }
+  ],
+  "education": [{"name": "가상대학교 컴퓨터공학", "organization": "존재하지 않는 교육기관", "period": "2015 — 2019", "detail": "평가 전용 허구 학력"}],
+  "certifications": [{"name": "가상 시스템 설계 자격", "organization": "존재하지 않는 발급기관", "period": "2020", "detail": "평가 전용 허구 자격"}],
+  "activities": [{"name": "가상 오픈소스 발표", "organization": "존재하지 않는 행사", "period": "2024", "detail": "평가 전용 허구 활동"}]
+}

@@ -7,3 +7,8 @@ __pycache__/
 output/
 runs/
 private/
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+evaluation-output/

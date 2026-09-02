@@ -1,0 +1,54 @@
+@font-face {
+  font-family: "Pretendard Variable";
+  src: url("fonts/PretendardVariable.woff2") format("woff2-variations");
+  font-style: normal;
+  font-weight: 45 920;
+  font-display: block;
+}
+@page { size: A4; margin: 17mm 18mm 16mm; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; color: #18191e; font-family: "Pretendard Variable", sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { background: #e8ebef; font-size: 10.5pt; line-height: 1.48; overflow-wrap: anywhere; word-break: keep-all; }
+.resume-doc { width: 210mm; margin: 20px auto; background: #fff; padding: 18mm; box-shadow: 0 4px 24px rgba(15,23,42,.14); }
+.evaluation-banner { padding: 7px 9px; margin-bottom: 12px; border: 2px solid #8b1e1e; color: #8b1e1e; font-size: 9pt; font-weight: 800; text-align: center; }
+.hero { display: flex; justify-content: space-between; gap: 24px; padding-bottom: 17px; border-bottom: 1px solid #cfd4dc; margin-bottom: 4px; }
+.hero h1 { margin: 0; font-size: 29px; line-height: 1.05; letter-spacing: -.7px; }
+.target { margin-top: 7px; font-size: 13px; font-weight: 650; color: #3a3f4a; }
+.contact { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-size: 8.5pt; color: #61666d; }
+.contact a { color: inherit; text-decoration: none; }
+.section-grid { display: grid; grid-template-columns: 39.5mm minmax(0,1fr); column-gap: 7.05mm; padding: 10px 0; border-bottom: 1px solid #e2e5e9; }
+.section-label, .section-kicker { font-size: 8.5pt; font-weight: 750; letter-spacing: .12em; color: #61666d; text-transform: uppercase; }
+.section-body > p { margin: 0 0 5px; color: #3a3f4a; }
+.section-body > p:last-child { margin-bottom: 0; }
+.core-stack { margin-top: 3.4mm; }
+.stack-grid { display: grid; gap: 1.2mm; }
+.stack-row { display: grid; grid-template-columns: 28mm minmax(0,1fr); gap: 3mm; align-items: start; }
+.stack-row strong { font-size: 8.2pt; letter-spacing: .035em; text-transform: uppercase; color: #075d63; }
+.stack-row span { font-size: 8.6pt; line-height: 1.45; color: #25383d; }
+.career-entry { display: grid; grid-template-columns: 39.5mm minmax(0,1fr); column-gap: 7.05mm; padding: 13px 0; border-bottom: 1px solid #d8dce2; break-inside: auto; }
+.company-side h3 { font-size: 12pt; margin: 10px 0 3px; }
+.career-entry + .career-entry .company-side h3 { margin-top: 0; }
+.company-side .employment { font-size: 9pt; font-weight: 650; color: #3a3f4a; margin-bottom: 3px; }
+.company-side time, .item-head time, .support-item time { font-size: 8.5pt; color: #61666d; white-space: nowrap; }
+.item-head, .support-item { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; }
+.role-card { margin: 0; padding: 0; }
+.role-card p { margin: 0; color: #3a3f4a; }
+.career-projects { margin-top: 2px; }
+.project-card { padding: 7px 0 4px; break-inside: auto; }
+.career-projects > .project-card { margin-top: 14px; }
+.project-card h4 { font-size: 11pt; margin: 0 0 2px; line-height: 1.3; }
+.meta { font-size: 8.5pt; color: #61666d; }
+.project-summary { margin: 6px 0; color: #3a3f4a; }
+ul { margin: 6px 0 0; padding-left: 17px; }
+li { margin: 0 0 5px; padding-left: 2px; break-inside: auto; }
+.side-projects .project-card { margin-top: 0; padding-top: 0; }
+.support-item { padding: 4px 0; border-bottom: 1px solid #eef0f3; break-inside: avoid; }
+.section-body > .support-item:first-child { padding-top: 0; }
+.support-item:last-child { border: 0; }
+.support-item h3 { font-size: 10.5pt; margin: 0 0 3px; }
+.support-item p { font-size: 9.5pt; margin: 3px 0 0; color: #3a3f4a; }
+@media print {
+  html, body { background: #fff; }
+  .resume-doc { width: auto; margin: 0; padding: 0; box-shadow: none; }
+  .hero, .section-label, .item-head, .support-item { break-after: avoid; }
+}

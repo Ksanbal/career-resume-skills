@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the question -> content approval -> generation gate."""
+"""Validate the question -> approval -> generation workflow gates."""
 from __future__ import annotations
 
 import argparse
@@ -44,6 +44,56 @@ def sha256(path: Path) -> str:
 
 def add(issues: list[dict], code: str, detail: str) -> None:
     issues.append({"code": code, "detail": detail})
+
+
+def validate_approval(run: Path, issues: list[dict]) -> dict | None:
+    try:
+        approval = load_json(run / "content_approval.json")
+        reviewed_path = approval.get("reviewed_path")
+        if approval.get("approved") is not True:
+            raise ValueError("approved must be true")
+        if reviewed_path != "content_review.md":
+            raise ValueError("reviewed_path must be exactly the safe relative path content_review.md")
+        reviewed = run / reviewed_path
+        try:
+            reviewed.resolve().relative_to(run.resolve())
+        except (OSError, ValueError) as exc:
+            raise ValueError("reviewed_path escapes the run directory") from exc
+        if reviewed.is_symlink() or not reviewed.is_file():
+            raise ValueError("reviewed_path must identify a regular content_review.md file")
+        if reviewed.stat().st_size == 0:
+            raise ValueError("content_review.md must be nonempty")
+        if sha256(reviewed) != approval.get("reviewed_sha256"):
+            raise ValueError("reviewed_sha256 does not match current content_review.md")
+        if not approval.get("approval_quote") or not approval.get("approved_at"):
+            raise ValueError("approval quote and time are required")
+        return approval
+    except Exception as exc:
+        add(issues, "CONTENT_APPROVAL_INVALID", str(exc))
+        return None
+
+
+def validate_generated_artifacts(run: Path, approval: dict | None, issues: list[dict]) -> None:
+    missing = [name for name in GENERATED_FILES if not (run / name).is_file() or (run / name).stat().st_size == 0]
+    if missing:
+        add(issues, "MISSING_GENERATED_ARTIFACT", ", ".join(missing))
+
+    hashes = approval.get("generated_artifact_hashes") if approval else None
+    if not isinstance(hashes, dict):
+        add(issues, "GENERATED_ARTIFACT_HASH_INVALID", "content_approval.json requires generated_artifact_hashes")
+        return
+
+    for name in GENERATED_FILES:
+        expected = hashes.get(name)
+        path = run / name
+        if not isinstance(expected, str) or len(expected) != 64:
+            add(issues, "GENERATED_ARTIFACT_HASH_INVALID", f"missing or invalid SHA-256 for {name}")
+        elif path.is_file() and sha256(path) != expected.lower():
+            add(issues, "GENERATED_ARTIFACT_HASH_INVALID", f"hash does not match current {name}")
+
+    resume_hash = approval.get("resume_data_sha256") if approval else None
+    if isinstance(hashes, dict) and resume_hash != hashes.get("resume_data.json"):
+        add(issues, "GENERATED_ARTIFACT_HASH_INVALID", "resume_data_sha256 must match generated_artifact_hashes[resume_data.json]")
 
 
 def validate(run: Path, stage: str) -> list[dict]:
@@ -94,20 +144,9 @@ def validate(run: Path, stage: str) -> list[dict]:
         if present:
             add(issues, "GENERATED_BEFORE_APPROVAL", ", ".join(present))
     else:
-        try:
-            approval = load_json(run / "content_approval.json")
-            reviewed_path = approval.get("reviewed_path")
-            if approval.get("approved") is not True:
-                raise ValueError("approved must be true")
-            if reviewed_path != "content_review.md":
-                raise ValueError("reviewed_path must be content_review.md")
-            reviewed = run / reviewed_path
-            if sha256(reviewed) != approval.get("reviewed_sha256"):
-                raise ValueError("approval hash does not match current content")
-            if not approval.get("approval_quote") or not approval.get("approved_at"):
-                raise ValueError("approval quote and time are required")
-        except Exception as exc:
-            add(issues, "CONTENT_APPROVAL_INVALID", str(exc))
+        approval = validate_approval(run, issues)
+        if stage == "final":
+            validate_generated_artifacts(run, approval, issues)
 
     return issues
 
@@ -115,7 +154,7 @@ def validate(run: Path, stage: str) -> list[dict]:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-dir", required=True, type=Path)
-    parser.add_argument("--stage", required=True, choices=("preflight", "generation"))
+    parser.add_argument("--stage", required=True, choices=("preflight", "generation", "final"))
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 

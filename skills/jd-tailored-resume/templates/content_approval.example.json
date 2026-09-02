@@ -3,5 +3,12 @@
   "reviewed_path": "content_review.md",
   "reviewed_sha256": "replace-with-current-sha256",
   "approval_quote": "Generate the resume as reviewed.",
-  "approved_at": "2026-01-01T09:05:00+09:00"
+  "approved_at": "2026-01-01T09:05:00+09:00",
+  "resume_data_sha256": "add-after-generating-approved-structured-data",
+  "generated_artifact_hashes": {
+    "resume_data.json": "replace-with-current-sha256",
+    "claim_trace.json": "replace-with-current-sha256",
+    "resume.html": "replace-with-current-sha256",
+    "resume.pdf": "replace-with-current-sha256"
+  }
 }
