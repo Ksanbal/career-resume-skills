@@ -7,7 +7,7 @@
     "manifests/evaluation-fixtures.json": "9766fdb6ba4f82d1177b84be9958fda05d1703b3eefdc1382d68ff18d5be0b43",
     "manifests/runtime-lock.json": "aaf88914773052fa12283ad72b0325230a6aa59158745fea387a2ecc24785f72",
     "schemas/resume-content.schema.json": "9229b746b79cc585069543779c42a5854d024a36a8f7b69378c6971cae7eac66",
-    "scripts/audit_resume.py": "0e70aab0a41660edd66cf4c028ce9f4c76c2203aa474114545d847a56ad9d57e",
+    "scripts/audit_resume.py": "2ee2051400bbe0901f49b4badc053f2350a9ed4e9afea32144bb3837cc8a9ee6",
     "scripts/compile_resume.py": "894764bd268e1443e74b8c56933cb91c4731a72c3fe182189d0e1e8cd647666d",
     "scripts/compiler_common.py": "b70b849c5b976ee42eef92b66506c94f27813e4f98032979036782e87b0be05c",
     "scripts/renderer_components.py": "f8d1e5d4e050d5bd37136b514f04174fdade3353785d7db75e4407e0761aec36"

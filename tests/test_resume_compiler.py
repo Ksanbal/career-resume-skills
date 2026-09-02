@@ -397,6 +397,36 @@ class ResumeCompilerTests(unittest.TestCase):
         golden = json.loads((SKILL / "manifests" / "evaluation-layout-golden.json").read_text(encoding="utf-8"))
         self.assertEqual(golden["fixture_sha256"], digest(FIXTURE))
         self.assertEqual(golden["chromium_revision"], "1187")
+        self.assertEqual(golden["geometry_sha256"], {
+            "darwin": "892554f9f8a361a2ad8a24c342b345e2bbcf0c401c2d023b22f922be098f3127",
+            "linux": "8d6962f3f65b9905d825b80b481bcb39802c3e556bb4a759a01d42072956d3d6",
+        })
+
+    def test_evaluation_golden_selects_exact_platform_geometry_and_fails_closed(self) -> None:
+        with mock.patch.object(sys, "path", [str(SCRIPTS), *sys.path]):
+            spec = importlib.util.spec_from_file_location("resume_audit_platform_test", SCRIPTS / "audit_resume.py")
+            self.assertIsNotNone(spec)
+            self.assertIsNotNone(spec.loader if spec else None)
+            assert spec is not None and spec.loader is not None
+            audit_resume = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(audit_resume)
+
+        golden = {
+            "geometry_sha256": {
+                "darwin": "d" * 64,
+                "linux": "a" * 64,
+            },
+        }
+        with mock.patch.object(audit_resume.sys, "platform", "darwin"):
+            self.assertEqual(audit_resume.platform_geometry_sha256(golden), "d" * 64)
+        with mock.patch.object(audit_resume.sys, "platform", "linux"):
+            self.assertEqual(audit_resume.platform_geometry_sha256(golden), "a" * 64)
+            self.assertNotEqual(audit_resume.platform_geometry_sha256(golden), "d" * 64)
+        for unsupported in ("win32", "freebsd13"):
+            with self.subTest(platform=unsupported), self.assertRaisesRegex(ValueError, "unsupported platform"):
+                audit_resume.platform_geometry_sha256(golden, unsupported)
+        with self.assertRaisesRegex(ValueError, "missing exact geometry"):
+            audit_resume.platform_geometry_sha256({"geometry_sha256": {"darwin": "d" * 64}}, "linux")
 
     def test_workflow_stale_approval_and_generated_artifact_requirement(self) -> None:
         self_test = run(SCRIPTS / "self_test.py")

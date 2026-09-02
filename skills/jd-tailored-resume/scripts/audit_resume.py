@@ -23,6 +23,7 @@ A4_TOLERANCE_POINTS = 1.0
 BOUNDS_TOLERANCE_POINTS = 1.0
 MIN_BODY_PT = 10.5
 MIN_LINE_HEIGHT_RATIO = 1.48
+SUPPORTED_GOLDEN_PLATFORMS = {"darwin", "linux"}
 
 
 def add(issues: list[dict[str, str]], code: str, detail: Any) -> None:
@@ -32,6 +33,23 @@ def add(issues: list[dict[str, str]], code: str, detail: Any) -> None:
 def canonical_hash(value: Any) -> str:
     raw = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()
+
+
+def platform_geometry_sha256(golden: dict[str, Any], platform: str | None = None) -> str:
+    current_platform = sys.platform if platform is None else platform
+    if current_platform not in SUPPORTED_GOLDEN_PLATFORMS:
+        raise ValueError(f"unsupported platform for exact geometry golden: {current_platform}")
+    geometry_hashes = golden.get("geometry_sha256")
+    if not isinstance(geometry_hashes, dict):
+        raise ValueError("geometry_sha256 must be a platform-keyed object")
+    expected = geometry_hashes.get(current_platform)
+    if not isinstance(expected, str) or len(expected) != 64:
+        raise ValueError(f"missing exact geometry for platform: {current_platform}")
+    try:
+        int(expected, 16)
+    except ValueError as exc:
+        raise ValueError(f"invalid exact geometry for platform: {current_platform}") from exc
+    return expected
 
 
 def hamming(left: str, right: str) -> int:
@@ -250,20 +268,31 @@ def audit(output_dir: Path, *, write_golden: bool = False) -> tuple[dict[str, An
     regression_ok = True
     golden_path = skill / "manifests" / "evaluation-layout-golden.json"
     if exact_evaluation:
+        try:
+            existing_golden = json.loads(golden_path.read_text(encoding="utf-8"))
+            geometry_hashes = existing_golden.get("geometry_sha256", {})
+            if not isinstance(geometry_hashes, dict):
+                geometry_hashes = {}
+        except Exception:
+            geometry_hashes = {}
+        if sys.platform in SUPPORTED_GOLDEN_PLATFORMS:
+            geometry_hashes = dict(geometry_hashes)
+            geometry_hashes[sys.platform] = geometry_signature
         candidate = {
-            "golden_version": "1.0.0", "rationale": "Geometry is exact under the locked browser/font; 64-bit dHash allows minor raster portability variance.",
+            "golden_version": "1.1.0", "rationale": "Geometry is exact per supported platform under the locked browser/font; 64-bit dHash allows minor raster portability variance.",
             "fixture_sha256": fixture_hash, "chromium_revision": locked_revision,
-            "page_count": metrics["page_count"], "geometry_sha256": geometry_signature,
+            "page_count": metrics["page_count"], "geometry_sha256": geometry_hashes,
             "page_perceptual_dhash": raster_digests, "max_hamming_distance": 4,
         }
-        if write_golden:
+        if write_golden and sys.platform in SUPPORTED_GOLDEN_PLATFORMS:
             write_json(golden_path, candidate)
         try:
             golden = json.loads(golden_path.read_text(encoding="utf-8"))
             distances = [hamming(a, b) for a, b in zip(raster_digests, golden["page_perceptual_dhash"])]
             regression_ok = (
                 golden["fixture_sha256"] == fixture_hash and golden["chromium_revision"] == locked_revision and
-                golden["page_count"] == metrics["page_count"] and golden["geometry_sha256"] == geometry_signature and
+                golden["page_count"] == metrics["page_count"] and
+                platform_geometry_sha256(golden) == geometry_signature and
                 len(raster_digests) == len(golden["page_perceptual_dhash"]) and
                 all(distance <= golden["max_hamming_distance"] for distance in distances)
             )

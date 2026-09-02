@@ -1,12 +1,15 @@
 {
   "chromium_revision": "1187",
   "fixture_sha256": "4323ba6879284759517fd42a71a724b6471ed026f082aa9b4d917e513460ffe8",
-  "geometry_sha256": "892554f9f8a361a2ad8a24c342b345e2bbcf0c401c2d023b22f922be098f3127",
-  "golden_version": "1.0.0",
+  "geometry_sha256": {
+    "darwin": "892554f9f8a361a2ad8a24c342b345e2bbcf0c401c2d023b22f922be098f3127",
+    "linux": "8d6962f3f65b9905d825b80b481bcb39802c3e556bb4a759a01d42072956d3d6"
+  },
+  "golden_version": "1.1.0",
   "max_hamming_distance": 4,
   "page_count": 1,
   "page_perceptual_dhash": [
     "8aa2a8a060e0e260"
   ],
-  "rationale": "Geometry is exact under the locked browser/font; 64-bit dHash allows minor raster portability variance."
+  "rationale": "Geometry is exact per supported platform under the locked browser/font; 64-bit dHash allows minor raster portability variance."
 }
